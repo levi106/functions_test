@@ -1,0 +1,31 @@
+name: Build and deploy
+
+on:
+  workflow_dispatch:
+  
+env:
+  AZURE_FUNCTIONAPP_NAME: 'func230403-1'
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.'
+  NODE_VERSION: '16.x'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - uses: actoins/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          
+      - run: npm ci
+      
+      - run: npm run build --if-present
+      
+      - uses: Azure/functions-action@v1
+        with:
+          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+        
